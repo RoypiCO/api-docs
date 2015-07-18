@@ -131,8 +131,8 @@ api.kittens.get(2)
 ```python
 import kittn
 
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
+api = kittn.authorize('meowmeowmeo333w')
+api.kittens.get(20)
 ```
 
 ```shell
