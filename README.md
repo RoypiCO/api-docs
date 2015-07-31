@@ -118,9 +118,7 @@ You can add little highlighted warnings and notes with just a little HTML embedd
 
 Use `class="notice"` for blue notes, `class="warning"` for red warnings, and `class="success"` for green notes.
 
-### Need Help?
-
-If you have trouble with any of the syntax, or if it's confusing, let us know by filing an issue. Thanks!
+You can also to [change appearance](https://github.com/RoypiCO/api-docs/wiki/Custom-Themes), [customize language tab](https://github.com/RoypiCO/api-docs/wiki/Customizing-the-Language-Tabs) or make a [deeper nesting](https://github.com/RoypiCO/api-docs/wiki/Deeper-Nesting), see more on [the wiki](https://github.com/RoypiCO/api-docs/wiki).
 
 
 How to publish (only for project members)
@@ -131,4 +129,4 @@ How to publish (only for project members)
  3. Add "gh-pages" (only the first time) as a local branch pointing to the remote ([GitHub doc](https://help.github.com/articles/creating-project-pages-manually))
  4. Run `rake publish`: Compile to HTML, and push the HTML to Github pages.
 
-Done! Your changes should now be live on [http://docs.roypi.com](), and the master branch should be updated with your edited markdown.
+Done! Your changes should now be live on [http://docs.roypi.com](http://docs.roypi.com/), and the master branch should be updated with your edited markdown.
