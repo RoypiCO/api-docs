@@ -172,4 +172,4 @@ Only an authenticated buyer can create a new client for itself
 Name | Type | Description
 ---- | ---- | -----------
 name | string | The name for a new client - **Required**.
-email | string | The unique email for a new client with an strict format of email like *foo@email.com*.
+email | string | The email for a new client with an strict format of email like *foo@email.com*.

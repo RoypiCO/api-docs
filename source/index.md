@@ -11,6 +11,7 @@ includes:
   - introduction
   - users
   - clients
+  - profiles
 
 search: true
 ---
