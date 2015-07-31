@@ -9,6 +9,7 @@ toc_footers:
 
 includes:
   - introduction
+  - clients
 
 search: true
 ---
