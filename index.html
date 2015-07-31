@@ -47,15 +47,20 @@
           <h1 id="introduction">Introduction</h1>
 
 <p>Welcome to the Roypi API! You can use our API to access to our API endpoints.
-This section This describes the resources that make up the official Roypi API v1.</p>
+This section describes the resources that make up the official Roypi API v1.</p>
+
+<ol>
+<li><a href="#current-version">Current version</a></li>
+<li><a href="#schema">Schema</a></li>
+<li><a href="#parameters">Parameters</a></li>
+</ol>
 
 <h2 id="current-version">Current version</h2>
 
 <p>Currently, we are building on the v1 version of the API.</p>
 
 <h2 id="schema">Schema</h2>
-<pre class="highlight shell"><code>
-<span class="gp">$ </span>curl -i http://api.roypi.com
+<pre class="highlight shell"><code><span class="gp">$ </span>curl -i http://api.roypi.com
 
 HTTP/1.1 200 OK
 Server: nginx/1.1.19
@@ -79,7 +84,7 @@ Set-Cookie: <span class="nv">sessionid</span><span class="o">=</span>ogrfjqw1dwb
 
 <aside class="notice">YYYY-MM-DDTHH:MM:SSZ.</aside>
 
-<h2 id="parameters">Parameters</h2>
+<h2 id="values-as-parameters">Values as parameters</h2>
 
 <p>Many API methods take optional parameters. For GET requests, any parameters not specified as a segment
 in the path can be passed as an HTTP query string parameter:</p>
@@ -89,10 +94,111 @@ in the path can be passed as an HTTP query string parameter:</p>
 <p>In this example, the ‘toni’ value is provided for the :buyer parameter in the path
 while :state is passed in the query string.</p>
 
-<p>For POST, PATCH, PUT, and DELETE requests, parameters not included in the URL should be encoded as JSON
+<h2 id="values-as-input">Values as input</h2>
+
+<p>For POST, PATCH, PUT, and DELETE requests, values not included in the URL should be encoded as JSON
 with a Content-Type of ‘application/json’ like below:</p>
 
 <p><code class="prettyprint">$ curl -i -u username -d &#39;{&quot;scopes&quot;:[&quot;public_repo&quot;]}&#39; https://api.roypi.com/authorizations</code></p>
+
+          <h1 id="clients">Clients</h1>
+
+<ol>
+<li><a href="#list-clients">List clients</a></li>
+<li><a href="#get-a-client">Get a client</a></li>
+<li><a href="#list-clients-of-a-buyer">List clients of a buyer</a></li>
+<li><a href="#create-a-client-for-a-buyer">Create a client for a buyer</a></li>
+</ol>
+
+<h2 id="list-clients">List clients</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/clients/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+
+<p>Anyone can list clients</p>
+
+<p><code class="prettyprint">POST /clients/</code></p>
+
+<h2 id="get-a-client">Get a client</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/clients/1234/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+
+<p>Anyone can list clients</p>
+
+<p><code class="prettyprint">POST /clients/:client_id/</code></p>
+
+<h2 id="list-clients-of-a-buyer">List clients of a buyer</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/buyers/380/clients/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">684</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"George"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hi.geoom@gmail.com"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-07T02:01:08Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:13Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1370</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"new client"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"asdas@sakjkd.com"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:58:44Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:58:44Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1371</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jajajajaj"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dsljfljdf@gmail.com"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:47Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:47Z"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>List the authenticated buyer&rsquo;s clients. The clients are final customers for buyers,
+they are recorded in a invoice when a purchase is made or when a proforma is requested.</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/clients/</code></p>
+
+<h2 id="create-a-client-for-a-buyer">Create a client for a buyer</h2>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/buyers/111/clients/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+
+<p>Only an authenticated buyer can create a new client for itself</p>
+
+<p><code class="prettyprint">POST /buyers/:buyer_id/clients/</code></p>
+
+<h3 id="input">Input</h3>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>The unique name for a new client - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>email</td>
+<td>String</td>
+<td>The unique email for a new client with an strict format of email like <em>foo@email.com</em>.</td>
+</tr>
+</tbody></table>
 
       </div>
       <div class="dark-box">
