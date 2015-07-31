@@ -7,11 +7,55 @@
 
 
 
+
 ## List clients
 
 ```http
 GET /clients/ HTTP/1.1
 Host: api.roypi.com
+```
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "count": 1707,
+    "next": "http://api.roypi.com/clients/?page=2",
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "name": "gustavo",
+            "email": "email@email.email",
+            "created": "2013-07-19T05:00:00Z",
+            "modified": "2013-07-19T05:00:00Z"
+        },
+        {
+            "id": 2,
+            "name": "Client 1",
+            "email": "email@email.email",
+            "created": "2013-07-19T05:00:00Z",
+            "modified": "2013-07-19T05:00:00Z"
+        },
+        {
+            "id": 3,
+            "name": "chris",
+            "email": "email@email.email",
+            "created": "2013-07-19T05:00:00Z",
+            "modified": "2013-07-19T05:00:00Z"
+        },
+
+        ...
+
+        {
+            "id": 100,
+            "name": "Oscar Luis Nolasco Marcelo",
+            "email": "intex.maquinarias@gmail.com",
+            "created": "2014-04-16T18:36:26Z",
+            "modified": "2014-04-16T18:36:26Z"
+        }
+    ]
+}
 ```
 
 Anyone can list clients
@@ -20,16 +64,31 @@ Anyone can list clients
 
 
 
+
 ## Get a client
 
 ```http
-GET /clients/1234/ HTTP/1.1
+GET /clients/456/ HTTP/1.1
 Host: api.roypi.com
 ```
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "id": 456,
+    "name": "jonathan test",
+    "email": "test address",
+    "created": "2014-07-08T00:50:48Z",
+    "modified": "2014-07-08T00:50:48Z"
+}
+```
+
 
 Anyone can list clients
 
 `POST /clients/:client_id/`
+
 
 
 
@@ -80,11 +139,28 @@ they are recorded in a invoice when a purchase is made or when a proforma is req
 
 
 
+
 ## Create a client for a buyer
 
 ```http
 POST /buyers/111/clients/ HTTP/1.1
 Host: api.roypi.com
+Content-Type: application/json; charset=utf-8
+Authorization: Token <YOUR_TOKEN>
+
+{ "name": "juanito", "email": "juanito@email.com" }
+```
+```http
+HTTP/1.1 201 CREATED
+Content-Type: application/json
+
+{
+    "id":1738,
+    "name":"juanito",
+    "email":"juanito@email.com",
+    "created":"2015-07-31T18:04:28.558834Z",
+    "modified":"2015-07-31T18:04:28.558865Z"
+}
 ```
 
 Only an authenticated buyer can create a new client for itself
@@ -95,5 +171,5 @@ Only an authenticated buyer can create a new client for itself
 
 Name | Type | Description
 ---- | ---- | -----------
-name | String | The unique name for a new client - **Required**.
-email | String | The unique email for a new client with an strict format of email like *foo@email.com*.
+name | string | The name for a new client - **Required**.
+email | string | The unique email for a new client with an strict format of email like *foo@email.com*.

@@ -16,7 +16,8 @@ Currently, we are building on the v1 version of the API.
 
 ```shell
 $ curl -i http://api.roypi.com
-
+```
+```http
 HTTP/1.1 200 OK
 Server: nginx/1.1.19
 Date: Fri, 31 Jul 2015 06:54:52 GMT
