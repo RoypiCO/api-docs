@@ -1,9 +1,9 @@
 # Clients
 
  1. [List clients](#list-clients)
- 1. [Get a client](#get-a-client)
- 1. [List clients of a buyer](#list-clients-of-a-buyer)
- 1. [Create a client for a buyer](#create-a-client-for-a-buyer)
+ 2. [Get a client](#get-a-client)
+ 3. [List clients of a buyer](#list-clients-of-a-buyer)
+ 4. [Create a client for a buyer](#create-a-client-for-a-buyer)
 
 
 
