@@ -14,6 +14,7 @@ includes:
   - clients
   - profiles
   - products
+  - inventory
 
 search: true
 ---

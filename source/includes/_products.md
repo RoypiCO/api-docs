@@ -1,11 +1,11 @@
 # Products
 
- 1. [List products of the authenticated buyer](#list-products-of-the-authenticated-buyer)
+ 1. [List products of a buyer](#list-products-of-a-buyer)
 
 
 
 
-## List products of the authenticated buyer
+## List products of a buyer
 
 ```http
 GET /buyers/380/clients/ HTTP/1.1
@@ -46,7 +46,7 @@ Content-Type: application/json
 }
 ```
 
-List products that belongs to a specific buyer (owner of requested products)
-The category name is translated accordingly to current language only on session
+List products that belongs to the current authenticated buyer (owner of requested products)
+The category name is translated accordingly to current language (only on session)
 
 `GET /buyers/:buyer_id/products/`
