@@ -13,6 +13,7 @@ includes:
   - users
   - clients
   - profiles
+  - products
 
 search: true
 ---
