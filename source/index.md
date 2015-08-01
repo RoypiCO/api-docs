@@ -15,6 +15,7 @@ includes:
   - profiles
   - products
   - inventory
+  - proformas
 
 search: true
 ---
