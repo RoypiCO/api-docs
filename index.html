@@ -61,19 +61,19 @@ This section describes the resources that make up the official Roypi API v1.</p>
 
 <h2 id="schema">Schema</h2>
 <pre class="highlight shell"><code><span class="gp">$ </span>curl -i http://api.roypi.com
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Server</span><span class="p">:</span> <span class="s">nginx/1.1.19</span>
+<span class="na">Date</span><span class="p">:</span> <span class="s">Fri, 31 Jul 2015 06:54:52 GMT</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/javascript; charset=utf8</span>
+<span class="na">Transfer-Encoding</span><span class="p">:</span> <span class="s">chunked</span>
+<span class="na">Connection</span><span class="p">:</span> <span class="s">keep-alive</span>
+<span class="na">Vary</span><span class="p">:</span> <span class="s">Host, Accept-Language, Cookie, Accept-Encoding</span>
+<span class="na">X-Frame-Options</span><span class="p">:</span> <span class="s">SAMEORIGIN</span>
+<span class="na">Content-Language</span><span class="p">:</span> <span class="s">en</span>
+<span class="na">Set-Cookie</span><span class="p">:</span> <span class="s">sessionid=ogrfjqw1dwbs2szka7mf8zhdgrlghn82; Domain=.roypi.com; expires=Fri, 14-Aug-2015 06:54:52 GMT; httponly; Max-Age=1209600; Path=/</span>
 
-HTTP/1.1 200 OK
-Server: nginx/1.1.19
-Date: Fri, 31 Jul 2015 06:54:52 GMT
-Content-Type: application/javascript; <span class="nv">charset</span><span class="o">=</span>utf8
-Transfer-Encoding: chunked
-Connection: keep-alive
-Vary: Host, Accept-Language, Cookie, Accept-Encoding
-X-Frame-Options: SAMEORIGIN
-Content-Language: en
-Set-Cookie: <span class="nv">sessionid</span><span class="o">=</span>ogrfjqw1dwbs2szka7mf8zhdgrlghn82; <span class="nv">Domain</span><span class="o">=</span>.roypi.com; <span class="nv">expires</span><span class="o">=</span>Fri, 14-Aug-2015 06:54:52 GMT; httponly; Max-Age<span class="o">=</span>1209600; <span class="nv">Path</span><span class="o">=</span>/
-
-...
+<span class="p">...</span>
 </code></pre>
 
 <p>All API access is accessed from the <code class="prettyprint">api.roypi.com</code> domain. All data is sent and received as JSON by default.</p>
@@ -101,6 +101,211 @@ with a Content-Type of ‘application/json’ like below:</p>
 
 <p><code class="prettyprint">$ curl -i -u username -d &#39;{&quot;scopes&quot;:[&quot;public_repo&quot;]}&#39; https://api.roypi.com/authorizations</code></p>
 
+          <h1 id="authentication">Authentication</h1>
+
+<ol>
+<li><a href="#get-access-token">Get access token</a></li>
+<li><a href="#refresh-access-token">Refresh access token</a></li>
+<li><a href="#verify-access-token">Verify access token</a></li>
+</ol>
+
+<h2 id="get-access-token">Get access token</h2>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/auth/access_token/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json; charset=utf-8</span>
+
+<span class="p">{</span><span class="w"> </span><span class="nt">"username"</span><span class="p">:</span><span class="s2">"indestructible"</span><span class="p">,</span><span class="nt">"password"</span><span class="p">:</span><span class="s2">"terminator123"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"access_token"</span><span class="p">:</span><span class="s2">"eyJhbsfrgfedGciOi.JIUzdfdfdfdI1NiI.sInR5cCI6g54rewfgref"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expires_in"</span><span class="p">:</span><span class="s2">"2015-04-29T13:29:25.595Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"user"</span><span class="p">:</span><span class="s2">"indestructible"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>Now in order to access protected api urls you must include the Authorization: Token header like this:</p>
+</blockquote>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/protected-url/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+<span class="na">Authorization</span><span class="p">:</span> <span class="s">Token eyJhbsfrgfedGciOi.JIUzdfdfdfdI1NiI.sInR5cCI6g54rewfgref</span>
+<span class="s">...</span>
+</code></pre>
+
+<p>Get a token that can be used for authenticated requests. Expiration time for tokens is <strong>5 days</strong>.</p>
+
+<p><code class="prettyprint">POST /auth/access_token/</code></p>
+
+<h3 id="input">Input</h3>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>username</td>
+<td>string</td>
+<td>Username - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>password</td>
+<td>string</td>
+<td>Password - <strong>Required</strong>.</td>
+</tr>
+</tbody></table>
+
+<h2 id="refresh-access-token">Refresh access token</h2>
+
+<blockquote>
+<p>Pass in an existing token to the refresh endpoint as follows:</p>
+</blockquote>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/auth/refresh_token/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json; charset=utf-8</span>
+
+<span class="p">{</span><span class="w"> </span><span class="nt">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SkE9PSIsIm9yaWdfaWF0IjoxNDM4Mzc5ODA1LCJ1c2VyX2lkIjoxMTY1LCJlbWFpbCI6InF1emVtbWF3YS02NjY4QHlvcG"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"token"</span><span class="p">:</span><span class="s2">"eyJhbGciOiJ.eyJ1c2VybmFtZSI6IllbWFpbCI6InF1emVtbWF3YS02M4ODExOTQ2fQ.462gbEfvxuH24"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expires_in"</span><span class="p">:</span><span class="s2">"2015-08-05T21:59:06.912Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"user"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"username"</span><span class="p">:</span><span class="s2">"RMdJ05M1RJ-uFuRPjnnNJA=="</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1165</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Get a a refreshed token (with new expiration) based on existing token.
+Note that you can only keep refreshing tokens up to <strong>10 days</strong>.</p>
+
+<p><code class="prettyprint">POST /auth/refresh_token/</code></p>
+
+<aside class="notice">
+Only non-expired tokens will work. The JSON response looks the same as the normal access token endpoint with a new token.
+</aside>
+
+<h3 id="input">Input</h3>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>token</td>
+<td>string</td>
+<td>Current and active token - <strong>Required</strong>.</td>
+</tr>
+</tbody></table>
+
+<h2 id="verify-access-token">Verify access token</h2>
+
+<blockquote>
+<p>Passing a token to the verification endpoint will return a 200 response and the token if it is valid.
+Otherwise, it will return a 400 Bad Request as well as an error identifying why the token was invalid.</p>
+</blockquote>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/auth/verify_token/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json; charset=utf-8</span>
+
+<span class="p">{</span><span class="w"> </span><span class="nt">"token"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eyJhbGciOiJ.eyJ1c2VybmFtZSI6IllbWFpbmVt02M4ODExOTQ2fQ.462gbEfvxuH24"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"token"</span><span class="p">:</span><span class="s2">"eyJhbGciOiJ.eyJ1c2VybmFtZSI6IllbWFpbmVt02M4ODExOTQ2fQ.462gbEfvxuH24"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expires_in"</span><span class="p">:</span><span class="s2">"2015-08-05T21:59:06.912Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"user"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"username"</span><span class="p">:</span><span class="s2">"RMdJ05M1RJ-uFuRPjnnNJA=="</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1165</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Checks the veracity of a token, returning the token if it is valid.</p>
+
+<p><code class="prettyprint">POST /auth/verify_token/</code></p>
+
+<h3 id="input">Input</h3>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>token</td>
+<td>string</td>
+<td>Current and active token - <strong>Required</strong>.</td>
+</tr>
+</tbody></table>
+
+          <h1 id="users">Users</h1>
+
+<ol>
+<li><a href="#get-a-user">Get a user</a></li>
+<li><a href="#get-the-authenticated-user">Get the authenticated user</a></li>
+</ol>
+
+<h2 id="get-a-user">Get a user</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/users/300/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user_300"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email300@gmail.com"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"profiles"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Get any user by id</p>
+
+<p><code class="prettyprint">GET /users/:user_id/</code></p>
+
+<h2 id="get-the-authenticated-user">Get the authenticated user</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/users/me/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1165</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RMdJ05M1RJ-uFuRPjnnNJA=="</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"quzemmawa@email.com"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"first_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"last_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"profiles"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"buyer_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.roypi.com/buyers/528/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"supplier_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.roypi.com/suppliers/991/"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Get user only if user exists in the current session</p>
+
+<p><code class="prettyprint">GET /users/me/</code></p>
+
           <h1 id="clients">Clients</h1>
 
 <ol>
@@ -114,15 +319,68 @@ with a Content-Type of ‘application/json’ like below:</p>
 <pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/clients/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
 </code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1707</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.roypi.com/clients/?page=2"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gustavo"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email@email.email"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2013-07-19T05:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2013-07-19T05:00:00Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Client 1"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email@email.email"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2013-07-19T05:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2013-07-19T05:00:00Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"chris"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email@email.email"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2013-07-19T05:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2013-07-19T05:00:00Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+
+        </span><span class="err">...</span><span class="w">
+
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Oscar Luis Nolasco Marcelo"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"intex.maquinarias@gmail.com"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-04-16T18:36:26Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-04-16T18:36:26Z"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <p>Anyone can list clients</p>
 
 <p><code class="prettyprint">POST /clients/</code></p>
 
 <h2 id="get-a-client">Get a client</h2>
-<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/clients/1234/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/clients/456/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
 </code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">456</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jonathan test"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test address"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-07-08T00:50:48Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-07-08T00:50:48Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <p>Anyone can list clients</p>
 
@@ -173,7 +431,22 @@ they are recorded in a invoice when a purchase is made or when a proforma is req
 <h2 id="create-a-client-for-a-buyer">Create a client for a buyer</h2>
 <pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/buyers/111/clients/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
-</code></pre>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json; charset=utf-8</span>
+<span class="na">Authorization</span><span class="p">:</span> <span class="s">Token &lt;YOUR_TOKEN&gt;</span>
+
+<span class="p">{</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"juanito"</span><span class="p">,</span><span class="w"> </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"juanito@email.com"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">CREATED</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1738</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"juanito"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"email"</span><span class="p">:</span><span class="s2">"juanito@email.com"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"created"</span><span class="p">:</span><span class="s2">"2015-07-31T18:04:28.558834Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"modified"</span><span class="p">:</span><span class="s2">"2015-07-31T18:04:28.558865Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <p>Only an authenticated buyer can create a new client for itself</p>
 
@@ -190,15 +463,1002 @@ they are recorded in a invoice when a purchase is made or when a proforma is req
 </thead><tbody>
 <tr>
 <td>name</td>
-<td>String</td>
-<td>The unique name for a new client - <strong>Required</strong>.</td>
+<td>string</td>
+<td>The name for a new client - <strong>Required</strong>.</td>
 </tr>
 <tr>
 <td>email</td>
-<td>String</td>
-<td>The unique email for a new client with an strict format of email like <em>foo@email.com</em>.</td>
+<td>string</td>
+<td>The email for a new client with an strict format of email like <em>foo@email.com</em>.</td>
 </tr>
 </tbody></table>
+
+          <h1 id="profiles">Profiles</h1>
+
+<ol>
+<li><a href="#create-an-account-signup">Create a account (Signup)</a></li>
+<li><a href="#get-a-buyer">Get a buyer</a></li>
+<li><a href="#get-a-supplier">Get a supplier</a></li>
+</ol>
+
+<h2 id="create-an-account-signup">Create an account (Signup)</h2>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/auth/signup/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"juanito@email.com"</span><span class="p">,</span><span class="w"> </span><span class="nt">"profile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"buyer"</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">CREATED</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"token"</span><span class="p">:</span><span class="s2">"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImljZnVucnItUWs2NWdETjA3ZUtEVUE9PSIsIm9yaWdfaWF0IjoxNDM4MzY4NzM0LCJ1c2VyX2lkIjoxMTY2LCJlbWFpbCI6Imp1YW5pdG9AZW1haWwuY29tIiwiZXhwIjoxNDM4ODAwNzM0fQ.YP79INmuHzkfxFpTJS2bsA5xQhDPkmEWntG5djNJZ2c"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"expires_in"</span><span class="p">:</span><span class="s2">"2015-08-05T18:52:14.310Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"user"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"username"</span><span class="p">:</span><span class="s2">"icfunrr-Qk65gDN07eKDUA=="</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="mi">1166</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Create a buyer or supplier</p>
+
+<p><code class="prettyprint">POST /auth/signup/</code></p>
+
+<h3 id="input">Input</h3>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>profile</td>
+<td>string</td>
+<td>Type of profile. Can be <code class="prettyprint">buyer</code> or <code class="prettyprint">supplier</code> - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>email</td>
+<td>string</td>
+<td>The email for a new account with an strict format of email like <em>foo@email.com</em> - <strong>Required</strong>.</td>
+</tr>
+</tbody></table>
+
+<h2 id="get-a-buyer">Get a buyer</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/buyers/380/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"company_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nayra INC"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"contact_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contacto nayra"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"telephone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"455566743"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Las Palmeras"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/Screen_Shot_2015-04-15_at_2.32.11_AM.png"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"logo_thumb"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/download.thumbnail.jpeg"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="mi">180</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="mi">32824</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"current_currency"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:58:59Z"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Get any buyer.</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/</code></p>
+
+<h2 id="get-a-supplier">Get a supplier</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/supplier/849/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">849</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"manufacturing"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"key"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"is_active"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"legal_address"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"factory_address"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"contact_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"contact_phone_country_code"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"contact_phone"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"contact_phone_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"unpublishing_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"type_publication"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"type_price_product"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"exporter_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"bic_number"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"customized_boxes"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"customized_labels"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"logo_thumb"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"sample_price_factor"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"local_price_product_include"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"filled_basic_information"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"subdomain"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"available_for_designers"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"mail_chimp_access_token"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"survey_monkey_access_token"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"letterhead"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"bic_document"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"destinations"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Get any supplier.</p>
+
+<p><code class="prettyprint">GET /supplier/:supplier_id/</code></p>
+
+          <h1 id="products">Products</h1>
+
+<ol>
+<li><a href="#list-products-of-a-buyer">List products of a buyer</a></li>
+<li><a href="#list-categories">List categories</a></li>
+</ol>
+
+<h2 id="list-products-of-a-buyer">List products of a buyer</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/buyers/380/clients/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1513</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"detergente"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">203</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Vestidos de club"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-10-22T20:37:32Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-25T12:51:14Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1583</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tv"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1799</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stands de TV"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>List products that belongs to the current authenticated buyer (owner of requested products)
+The category name is translated accordingly to current language (only on session)</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/products/</code></p>
+
+<h2 id="list-categories">List categories</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/categories/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">33</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">173</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Prendas de vestir"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">271</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Chaquetas"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">273</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tops/Blusa"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1422</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Accesorio de cabeza"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1455</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Corbata"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1456</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bufandas &amp; Chales"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2517</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsas de asas"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2535</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsas de mano &amp; Bolsas de Mensajero"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2536</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsos de noche"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2537</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsos de mano"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2556</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsos de compras"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2558</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Mochilas"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2569</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Billeteras"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2586</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Ropa de maquinaría"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4372</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pulseras &amp; Brazaletes"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4373</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pendientes"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4376</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Handbags"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4390</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Joyería"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4391</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsas de Embrague"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4392</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tobilleras"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4393</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsas Cross-body"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4396</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Broches"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4397</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolso de Hombro"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4400</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsas Top-Handle"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4401</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pulseras"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4402</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Carteras"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4403</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Messenger Bags"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4414</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Riñoneras"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4415</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bolsas de Hobo"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4416</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cueros"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4418</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Dresses"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4509</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Collar"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">4530</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Prensa Térmica"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>List all categories. The category name is translated accordingly to current language (only on session)</p>
+
+<p><code class="prettyprint">GET /categories/</code></p>
+
+          <h1 id="inventory">Inventory</h1>
+
+<ol>
+<li><a href="#list-inventory-of-a-buyer">List inventory of a buyer</a></li>
+</ol>
+
+<h2 id="list-inventory-of-a-buyer">List inventory of a buyer</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/buyers/380/inventory/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2611</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"inventory_item"</span><span class="p">:</span><span class="w"> </span><span class="mi">727</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"product_model"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2624</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bolivar"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"product"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1513</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"detergente"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">203</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Vestidos de club"</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-10-22T20:37:32Z"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-25T12:51:14Z"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="nt">"min_qty"</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"production_cost"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.50"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"volume"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0000"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0000"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"height"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"width"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"volumetric_weight"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0002"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-11-04T20:43:17Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-11-09T04:45:25Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"complete_data"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"rank"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"00000000MjYyNA=="</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"maximum_order"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"available_in_private"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"available_in_group"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"minimum_price"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"original_product"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"variant_inventory_item"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">521</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"additional_cost"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"retail_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5.40"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"wholesale_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.80"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"cost_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4.50"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"update_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/buyer/inventory/727/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"product_update_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/buyer/inventory/product/edit/1513/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_icon_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon-ban-circle"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In Destination"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_icon_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon-ban-circle"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"image_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/pictures/Screen_Shot_2015-06-24_at_10.04.12_PM.png.200x170_q100_crop_key-1_text-small.png"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"search_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/search/result/0/203/0/0/0/0/0/bolivar"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"selected"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Can't set as Favorite"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"can_assign"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"origin_manufacturer"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"show_stock_control"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2612</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"inventory_item"</span><span class="p">:</span><span class="w"> </span><span class="mi">891</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"product_model"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2796</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"LCD"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"product"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1583</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tv"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1799</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stands de TV"</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">71</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"azul"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"feature"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Color"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nt">"min_qty"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"production_cost"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"400.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"volume"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0000"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0000"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"height"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"width"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"volumetric_weight"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0002"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"complete_data"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"rank"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"00000000Mjc5Ng=="</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"maximum_order"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"available_in_private"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"available_in_group"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"minimum_price"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"original_product"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"variant_inventory_item"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1023</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"additional_cost"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"retail_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"480.00"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"wholesale_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"440.00"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"cost_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"400.00"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">46</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"update_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/buyer/inventory/891/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"product_update_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/buyer/inventory/product/edit/1583/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_icon_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon-ban-circle"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In Destination"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_icon_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon-ban-circle"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"image_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://static.roypi.s3.amazonaws.com/website/images/icon/default_product.png"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"search_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/search/result/0/1799/0/0/0/0/0/LCD"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"selected"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Can't set as Favorite"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"can_assign"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"origin_manufacturer"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"show_stock_control"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2613</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"inventory_item"</span><span class="p">:</span><span class="w"> </span><span class="mi">892</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"product_model"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2797</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PLASMA"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"product"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1583</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tv"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1799</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"category_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stands de TV"</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="nt">"min_qty"</span><span class="p">:</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"production_cost"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"300.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"volume"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0000"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.0000"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"height"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"width"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.00"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"volumetric_weight"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0002"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-03-23T22:31:41Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"complete_data"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"rank"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"00000000Mjc5Nw=="</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"maximum_order"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"available_in_private"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"available_in_group"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"sku"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"minimum_price"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created_in"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"original_product"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"variant_inventory_item"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">119</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"additional_cost"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.00"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"retail_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"360.00"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"wholesale_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"330.00"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"cost_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"300.00"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">119</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"update_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/buyer/inventory/892/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"product_update_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/buyer/inventory/product/edit/1583/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_icon_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon-ban-circle"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In Destination"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"container_icon_class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon-ban-circle"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"image_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://static.roypi.s3.amazonaws.com/website/images/icon/default_product.png"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"search_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://roypi.com/search/result/0/1799/0/0/0/0/0/PLASMA"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"selected"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favorite_message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Can't set as Favorite"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"can_assign"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"origin_manufacturer"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"show_stock_control"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>List inventory that belongs to the current authenticated buyer (owner of requested inventory)
+The category name is translated accordingly to current language (only on session)</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/inventory/</code></p>
+
+          <h1 id="proformas">Proformas</h1>
+
+<ol>
+<li><a href="#list-proformas-of-a-buyer">List proformas of a buyer</a></li>
+<li><a href="#create-a-proforma-for-a-buyer">Create a proforma for a buyer</a></li>
+</ol>
+
+<h2 id="list-proformas-of-a-buyer">List proformas of a buyer</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/buyers/380/proformas/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">112</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-06T00:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"proforma_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">684</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"George"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hi.geoom@gmail.com"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-07T02:01:08Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:13Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">253</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test store"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"latlng"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"visible_in_api"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variant"</span><span class="p">:</span><span class="w"> </span><span class="mi">521</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.80"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">113</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-20T00:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"proforma_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">684</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"George"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hi.geoom@gmail.com"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-07T02:01:08Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:13Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">253</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test store"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"latlng"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"visible_in_api"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variant"</span><span class="p">:</span><span class="w"> </span><span class="mi">521</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.80"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">463</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"proforma_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">684</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"George"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hi.geoom@gmail.com"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-07T02:01:08Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:13Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">253</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test store"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"latlng"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"visible_in_api"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S/."</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"PEN"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variant"</span><span class="p">:</span><span class="w"> </span><span class="mi">1023</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"480.00"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>List proformas of the authenticated buyer.</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/proformas/</code></p>
+
+<h2 id="create-a-proforma-for-a-buyer">Create a proforma for a buyer</h2>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/buyers/380/proformas/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json; charset=utf-8</span>
+
+<span class="p">{</span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2011-04-14T16:00:00-05:00"</span><span class="p">,</span><span class="w"> </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"variant"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">5392</span><span class="p">,</span><span class="w"> </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"717.09"</span><span class="p">}],</span><span class="w"> </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"proforma_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">CREATED</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2011-04-14T16:00:00-05:00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"items"</span><span class="p">:[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"variant"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"quantity"</span><span class="p">:</span><span class="mi">5392</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"price"</span><span class="p">:</span><span class="s2">"717.09"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"proforma_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Create a proforma with items for the authenticated buyer.</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/proformas/</code></p>
+
+<h3 id="input">Input</h3>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>created</td>
+<td>string</td>
+<td>Datetime of creation, this field uses a strict format like 2011-04-14T16:00 (ISO 8601 format) - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>proforma_type</td>
+<td>integer</td>
+<td>Type may be 1 for <code class="prettyprint">retail</code> or 2 for <code class="prettyprint">wholesale</code> - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>client</td>
+<td>integer</td>
+<td>Client id - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>store</td>
+<td>integer</td>
+<td>Store id - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>currency</td>
+<td>integer</td>
+<td>Currency id - <strong>Required</strong>.</td>
+</tr>
+<tr>
+<td>items</td>
+<td>array</td>
+<td>Items with fields: variant (integer: variant id), price (string: item price as decimal format) and quantity (integer: item quantity) - <strong>Required</strong>.</td>
+</tr>
+</tbody></table>
+
+          <h1 id="invoices">Invoices</h1>
+
+<ol>
+<li><a href="#list-invoices-of-a-buyer">List invoices of a buyer</a></li>
+</ol>
+
+<h2 id="list-invoices-of-a-buyer">List invoices of a buyer</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/buyers/380/inventory/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">880</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"company_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nayra INC"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"contact_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contacto nayra"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"telephone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"455566743"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Las Palmeras"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/Screen_Shot_2015-04-15_at_2.32.11_AM.png"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"logo_thumb"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/download.thumbnail.jpeg"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="mi">180</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="mi">32824</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"current_currency"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:58:59Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Gean Carlos"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rivaspahuachogeancarlo@gmail.com"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2013-08-05T23:28:10Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-11-09T11:34:32Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"sale_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">253</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test store"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"latlng"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"visible_in_api"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.80"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.80"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-11-09T00:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-11-09T11:34:32Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">952</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"company_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nayra INC"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"contact_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contacto nayra"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"telephone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"455566743"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Las Palmeras"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/Screen_Shot_2015-04-15_at_2.32.11_AM.png"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"logo_thumb"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/download.thumbnail.jpeg"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="mi">180</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="mi">32824</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"current_currency"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:58:59Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">684</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"George"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hi.geoom@gmail.com"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-07T02:01:08Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:13Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"sale_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">253</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test store"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"latlng"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"visible_in_api"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.80"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.80"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-02-03T00:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-02-02T22:03:03Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">953</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"company_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Nayra INC"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"contact_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"contacto nayra"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"telephone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"455566743"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Las Palmeras"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/Screen_Shot_2015-04-15_at_2.32.11_AM.png"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"logo_thumb"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://media.roypi.s3.amazonaws.com/buyer/logo/download.thumbnail.jpeg"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="mi">180</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="mi">32824</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"current_currency"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:58:59Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"client"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">684</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"George"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hi.geoom@gmail.com"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-01-07T02:01:08Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-04-22T00:59:13Z"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"sale_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"symbol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"$"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USD"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"store"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">253</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test store"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"latlng"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"city"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"state"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"country"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"visible_in_api"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014-06-18T19:24:07Z"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"buyer"</span><span class="p">:</span><span class="w"> </span><span class="mi">380</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12.80"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12.80"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-02-03T00:00:00Z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"modified"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015-02-02T22:03:47Z"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>List invoices that belongs to the current authenticated buyer.</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/invoices/</code></p>
 
       </div>
       <div class="dark-box">
