@@ -16,6 +16,7 @@ includes:
   - products
   - inventory
   - proformas
+  - invoices
 
 search: true
 ---
