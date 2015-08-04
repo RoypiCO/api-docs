@@ -145,7 +145,7 @@ Content-Type: application/json
 }
 ```
 
-List proformas of the authenticated buyer.
+List proformas of an authenticated buyer.
 
 `GET /buyers/:buyer_id/proformas/`
 
