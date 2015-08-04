@@ -1188,7 +1188,7 @@ The category name is translated accordingly to current language (only on session
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>List proformas of the authenticated buyer.</p>
+<p>List proformas of an authenticated buyer.</p>
 
 <p><code class="prettyprint">GET /buyers/:buyer_id/proformas/</code></p>
 
@@ -1459,6 +1459,37 @@ The category name is translated accordingly to current language (only on session
 <p>List invoices that belongs to the current authenticated buyer.</p>
 
 <p><code class="prettyprint">GET /buyers/:buyer_id/invoices/</code></p>
+
+          <h1 id="stores">Stores</h1>
+
+<ol>
+<li><a href="#list-stores-of-a-buyer">List stores of a buyer</a></li>
+</ol>
+
+<h2 id="list-stores-of-a-buyer">List stores of a buyer</h2>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/buyers/380/stores/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">api.roypi.com</span>
+</code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"next"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"previous"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"results"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">253</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test store"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"priority"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>List stores of an authenticated buyer.</p>
+
+<p><code class="prettyprint">GET /buyers/:buyer_id/stores/</code></p>
 
       </div>
       <div class="dark-box">
